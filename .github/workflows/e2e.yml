@@ -11,7 +11,10 @@ permissions:
 jobs:
   maestro-ios:
     name: Maestro E2E (iOS simulator)
-    runs-on: macos-15
+    runs-on: macos-26
+    # macos-15 only ships Xcode <= 26.3 / Swift 6.2.3, which errors on Expo
+    # SDK 57's expo-modules-jsi (data-race + SWIFT_RETURNS_RETAINED). macos-26
+    # ships Xcode 26.4+ / Swift 6.3, which tolerates it (warnings only).
     timeout-minutes: 60
     env:
       EXPO_PUBLIC_API_URL: http://127.0.0.1:3000
