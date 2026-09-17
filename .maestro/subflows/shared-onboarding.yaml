@@ -14,10 +14,7 @@ appId: it.bpco.companion
       API_URL: ${API_URL}
 - openLink: ${output.callback}
 - runFlow:
-    when:
-      visible: "Vuoi aprire l’elemento in “BPCO Companion”?"
-    commands:
-      - tapOn: "Apri"
+    file: ../subflows/accept-deeplink-prompt.yaml
 - extendedWaitUntil:
     visible: "I tuoi dati"
     timeout: 15000
