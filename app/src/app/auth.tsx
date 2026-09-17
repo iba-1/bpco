@@ -7,7 +7,7 @@ export default function AuthScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>{i18n.t("onboarding.welcome.title")}</Text>
       <Text style={styles.subtitle}>{i18n.t("onboarding.welcome.subtitle")}</Text>
-      <Link href="/onboarding" asChild>
+      <Link href="/account" asChild>
         <Pressable style={styles.cta}>
           <Text style={styles.ctaText}>{i18n.t("onboarding.welcome.cta.start")}</Text>
         </Pressable>
