@@ -10,7 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "node --test --import tsx src/**/*.test.ts",
-    "test:ci": "node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/report.lcov --test-reporter=junit --test-reporter-destination=junit.xml --import tsx src/**/*.test.ts"
+    "test:ci": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/report.lcov --test-reporter=junit --test-reporter-destination=junit.xml --import tsx src/**/*.test.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
