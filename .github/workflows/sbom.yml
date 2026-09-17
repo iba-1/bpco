@@ -1,0 +1,46 @@
+name: SBOM
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  sbom:
+    name: Generate SBOM per artifact
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workspace: [backend, app]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate SBOM (${{ matrix.workspace }})
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./${{ matrix.workspace }}
+          format: cyclonedx-json
+          output-file: sbom-${{ matrix.workspace }}.cdx.json
+
+      - name: Upload SBOM (${{ matrix.workspace }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ matrix.workspace }}
+          path: sbom-${{ matrix.workspace }}.cdx.json
+          retention-days: 90
+
+      - name: Verify SBOM is non-empty
+        run: |
+          jq -e '.components | length > 0' sbom-${{ matrix.workspace }}.cdx.json >/dev/null \
+            || { echo "SBOM has no components"; exit 1; }

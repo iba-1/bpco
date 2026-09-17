@@ -1,0 +1,23 @@
+{
+  "name": "bpco-backend",
+  "private": true,
+  "version": "0.1.0",
+  "description": "BPCO Companion backend — EU-sovereign API (Postgres, events, push)",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "node --test --import tsx src/**/*.test.ts",
+    "test:ci": "node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/report.lcov --test-reporter=junit --test-reporter-destination=junit.xml --import tsx src/**/*.test.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.20.3",
+    "eslint": "^9.17.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
+  }
+}

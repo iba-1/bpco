@@ -1,0 +1,19 @@
+{
+  "name": "bpco-companion",
+  "private": true,
+  "version": "0.1.0",
+  "description": "BPCO Companion — mobile app + EU-sovereign backend",
+  "type": "module",
+  "workspaces": [
+    "backend",
+    "app"
+  ],
+  "scripts": {
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

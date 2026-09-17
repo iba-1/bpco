@@ -1,0 +1,24 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+!docs/compliance/deployment-audit.log
+.DS_Store
+
+# Test reports
+**/junit.xml
+
+# Terraform/OpenTofu
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.backup
+**/.terraform.lock.hcl
+
+# Expo / React Native
+app/.expo/
+app/ios/
+app/android/
+
+# Test artifacts
+coverage/

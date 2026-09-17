@@ -1,0 +1,79 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    name: Build, sign & release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build backend
+        run: npm run build --workspace backend
+
+      - name: Build app (typecheck gate)
+        run: npm run typecheck --workspace app
+
+      - name: Create release archive
+        run: |
+          mkdir -p dist
+          tar -czf dist/bpco-backend-${{ github.ref_name }}.tar.gz -C backend dist
+          tar -czf dist/bpco-source-${{ github.ref_name }}.tar.gz \
+            backend/src app/src infra docs PRD.md CONTEXT.md
+
+      - name: Generate SBOM for release (backend)
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./backend
+          format: cyclonedx-json
+          output-file: dist/sbom-backend-${{ github.ref_name }}.cdx.json
+
+      - name: Generate SBOM for release (app)
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./app
+          format: cyclonedx-json
+          output-file: dist/sbom-app-${{ github.ref_name }}.cdx.json
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign artifacts (cosign keyless)
+        run: |
+          for f in dist/*.tar.gz dist/*.cdx.json; do
+            cosign sign-blob --yes --bundle "$f.bundle" --output-signature "$f.sig" --output-certificate "$f.crt" "$f"
+          done
+
+      - name: Verify signatures (keyless)
+        run: |
+          for f in dist/*.tar.gz dist/*.cdx.json; do
+            cosign verify-blob --bundle "$f.bundle" "$f" || exit 1
+          done
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: dist/*
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: dist/*
+          generate_release_notes: true

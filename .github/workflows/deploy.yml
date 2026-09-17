@@ -1,0 +1,82 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      release:
+        description: "Release ref being deployed (e.g. v0.1.0)"
+        required: false
+        type: string
+        default: ""
+    secrets:
+      EXOSCALE_API_KEY:
+        required: false
+      EXOSCALE_API_SECRET:
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Deploy and record audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Gate on compliance spine (ADR-0004)
+        run: |
+          test -f docs/adr/0004-compliance-spine-day0.md \
+            || { echo "ADR-0004 missing — deployment blocked"; exit 1; }
+          test -f .github/workflows/sbom.yml \
+            || { echo "SBOM pipeline missing — deployment blocked"; exit 1; }
+          test -f .github/workflows/release.yml \
+            || { echo "Release/signing pipeline missing — deployment blocked"; exit 1; }
+
+      - name: Append hash-chained audit entry to audit-log branch
+        env:
+          ENV: ${{ inputs.environment }}
+          RELEASE: ${{ inputs.release }}
+        run: |
+          git config user.name "deploy-bot"
+          git config user.email "deploy-bot@bpco.local"
+
+          # Work on the audit-log branch so the entry is committed there, not main.
+          git fetch origin audit-log:refs/remotes/origin/audit-log 2>/dev/null || true
+          if git rev-parse --verify audit-log >/dev/null 2>&1; then
+            git checkout audit-log
+          elif git rev-parse --verify origin/audit-log >/dev/null 2>&1; then
+            git checkout -b audit-log origin/audit-log
+          else
+            git checkout -b audit-log
+          fi
+
+          LOG=docs/compliance/deployment-audit.log
+          PREV=$(git log --format=%H -1 -- "$LOG" 2>/dev/null || echo "genesis")
+          {
+            echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "actor=${{ github.actor }}"
+            echo "sha=${{ github.sha }}"
+            echo "run=${{ github.run_id }}"
+            echo "env=${ENV}"
+            echo "release=${RELEASE}"
+            echo "adr_gate=0004"
+            echo "prev=${PREV}"
+          } > .audit-entry.tmp
+          HASH=$(sha256sum .audit-entry.tmp | cut -d' ' -f1)
+          mkdir -p docs/compliance
+          cat .audit-entry.tmp >> "$LOG"
+          printf '%s\n\n' "--- entry hash: ${HASH}" >> "$LOG"
+
+          git add docs/compliance/deployment-audit.log
+          if git diff --cached --quiet; then
+            echo "No audit change to commit"
+            exit 0
+          fi
+          git commit -m "audit: deploy ${{ github.sha }} to ${{ inputs.environment }}"
+          git push origin audit-log
