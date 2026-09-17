@@ -5,13 +5,18 @@ appId: it.bpco.companion
 ---
 - launchApp:
     clearState: true
-# Fresh install → no session → auth/welcome screen
-- assertVisible: "Tieni traccia della tua BPCO"
+# Fresh install → no session → auth/welcome screen (RN first render can be
+# slow on a fresh CI simulator, so wait rather than assert immediately)
+- extendedWaitUntil:
+    visible: "Tieni traccia della tua BPCO"
+    timeout: 30000
 - assertNotVisible: "Come stai oggi?"
 
 # The account entry exists behind the CTA
 - tapOn: "Inizia"
-- assertVisible: "Crea il tuo account"
+- extendedWaitUntil:
+    visible: "Crea il tuo account"
+    timeout: 10000
 - assertVisible: "Continua con Apple"
 - assertVisible: "Continua con Google"
 

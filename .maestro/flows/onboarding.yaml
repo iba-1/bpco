@@ -7,7 +7,9 @@ appId: it.bpco.companion
 ---
 - launchApp:
     clearState: true
-- assertVisible: "Tieni traccia della tua BPCO"
+- extendedWaitUntil:
+    visible: "Tieni traccia della tua BPCO"
+    timeout: 30000
 
 # Mint a pending OIDC state via the backend test seam and deliver the deep
 # link to the app; the app's exchange completes and saves the session.

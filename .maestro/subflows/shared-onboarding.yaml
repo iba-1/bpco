@@ -5,7 +5,9 @@ appId: it.bpco.companion
 ---
 - launchApp:
     clearState: true
-- assertVisible: "Tieni traccia della tua BPCO"
+- extendedWaitUntil:
+    visible: "Tieni traccia della tua BPCO"
+    timeout: 30000
 - runScript:
     file: ../scripts/set-session.js
     env:
