@@ -89,6 +89,9 @@ jobs:
           xcrun simctl launch booted it.bpco.companion
 
       - name: Run Maestro flows
+        env:
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 120000
+          MAESTRO_CLI_NO_ANALYTICS: "1"
         run: |
           export PATH="$PATH:$HOME/.maestro/bin"
           mkdir -p docs/compliance/evidence/test-reports
