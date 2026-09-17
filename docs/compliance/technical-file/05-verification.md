@@ -9,7 +9,10 @@
 | Unit test | `ci.yml` → `npm run test` / `test:ci` | `../evidence/test-reports/` |
 | Typecheck | `ci.yml` → `npm run typecheck` | report CI |
 | Lint | `ci.yml` → `npm run lint` | report CI |
-| Integration / E2E | *da definire* (ticket futuri) | `../evidence/test-reports/` |
+| Integration (HTTP reale) | backend test integration | `../evidence/test-reports/` |
+| System / E2E (UI) | **Maestro** su simulator/emulator (PRD §20) | `../evidence/test-reports/` (JUnit) |
+
+Evidenza di verifica di sistema (IEC 62304 system testing) prodotta dai flussi Maestro per ogni feature: onboarding, auth gate, tabs, check-in, timeline, report, reminder.
 
 ## Evidenza per release
 
