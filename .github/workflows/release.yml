@@ -41,9 +41,12 @@ jobs:
         run: |
           npx @cyclonedx/cyclonedx-npm \
             --package-lock-only \
+            --ignore-npm-errors \
             --validate \
             --output-format JSON \
             --output-file dist/sbom-${{ github.ref_name }}.cdx.json
+        env:
+          NODE_ENV: production
 
       - name: Install cosign
         uses: sigstore/cosign-installer@v3
