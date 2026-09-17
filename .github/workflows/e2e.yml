@@ -30,7 +30,9 @@ jobs:
         run: |
           sudo xcode-select -s "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
           xcodebuild -version
-          echo "SIM_NAME=$(xcrun simctl list devices available | grep -oE 'iPhone [0-9A-Za-z ]+' | sort -u | tail -1)" >> "$GITHUB_ENV"
+          # Pick the first available iPhone simulator's UDID (stable across
+          # runner images and Xcode versions).
+          echo "SIM_UDID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); devs=[(k,v) for rt in d["devices"].values() for k,v in rt.items()]; print([udid for udid,n in devs if "iPhone" in n][0])')" >> "$GITHUB_ENV"
 
       - name: Install dependencies
         run: npm ci
@@ -59,12 +61,12 @@ jobs:
           npx pod-install
           xcodebuild -workspace ios/BPCOCompanion.xcworkspace \
             -scheme BPCOCompanion -configuration Release \
-            -sdk iphonesimulator -destination "platform=iOS Simulator,name=${{ env.SIM_NAME }}" \
+            -sdk iphonesimulator -destination "platform=iOS Simulator,id=${{ env.SIM_UDID }}" \
             -derivedDataPath build build
 
       - name: Boot simulator + install app
         run: |
-          xcrun simctl boot "${{ env.SIM_NAME }}" || true
+          xcrun simctl boot "${{ env.SIM_UDID }}" || true
           xcrun simctl install booted \
             app/build/Build/Products/Release-iphonesimulator/BPCOCompanion.app
 
