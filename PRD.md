@@ -54,7 +54,7 @@ Tra una visita pneumologica e l'altra passano settimane o mesi. Il paziente sper
 |---|---|---|
 | Scope | Full MVP (§6), cut order in §16 | ADR — |
 | Piattaforma | React Native (Expo), iOS + Android | ADR — |
-| Backend | EU-sovereign su **Exoscale** (Postgres, object storage, K8s) | `docs/adr/0001` |
+| Backend | EU-sovereign su **Exoscale** (VM + docker compose, Postgres e object storage gestiti) | `docs/adr/0001`, `docs/adr/0002` |
 | IaC | **OpenTofu**, hosting-agnostic a due strati, state su storage EU | `docs/adr/0002` |
 | Servizi | **Verne Gate** (auth, Ory Kratos) + **Sentry EU** (crash) + push dispatcher self-hosted + events API self-hosted | `docs/adr/0003` |
 | Compliance | Spine day-0 (logging, release firmate, GDPR, CI evidence, documentazione); QMS formale a Phase 4 | `docs/adr/0004` |
@@ -141,9 +141,9 @@ App (Expo / React Native, iOS+Android)
   └── SDK: Verne Gate auth, Sentry EU
         │
 Backend (EU, Exoscale)
-  ├── Postgres (dati sanitari, RLS)
-  ├── Object storage (EU)
-  ├── K8s / container orchestration
+  ├── Postgres gestito (dati sanitari, RLS)
+  ├── Object storage gestito (EU)
+  ├── VM con docker compose (API + push dispatcher, container firmati)
   ├── Events API (analytics self-hosted)
   └── Push dispatcher (APNs/FCM self-hosted)
         │
@@ -151,6 +151,7 @@ Infrastructure as Code: OpenTofu (ADR 0002)
 ```
 
 - **State OpenTofu**: storage S3-compatible EU.
+- **Deploy**: container OCI firmati su VM Exoscale via docker compose (niente K8s nell'MVP — vedi ADR-0002).
 - **Dispacciamento push**: il dispositivo termina comunque su APNs/FCM (Apple/Google); l'orchestrazione resta in-EU.
 - **Analytics**: events API su Postgres EU (eventi §13), nessun tool di analytics US.
 
