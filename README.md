@@ -28,7 +28,12 @@ Evidenza e documentazione per un futuro Technical File MDR: **`docs/compliance/R
 
 ```bash
 npm install
+docker compose up -d            # local Postgres (dev only)
+cp backend/.env.example backend/.env
 npm run lint       # eslint (tutti i workspace)
 npm run typecheck  # tsc --noEmit
 npm run test       # unit test
+npm run dev --workspace backend  # backend dev server (after T03 adds src/index.ts)
 ```
+
+La pipeline CI (SBOM, test report, release firmate, audit log) gira su ogni push indipendentemente dall'ambiente locale. L'infrastruttura Exoscale (T02) viene provisionata al momento del pilot; lo sviluppo procede contro Postgres locale.

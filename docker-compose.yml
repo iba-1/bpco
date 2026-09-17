@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: bpco
+      POSTGRES_PASSWORD: bpco
+      POSTGRES_DB: bpco
+    ports:
+      - "5432:5432"
+    volumes:
+      - bpco-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bpco -d bpco"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  bpco-pgdata:

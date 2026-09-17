@@ -9,6 +9,7 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
+    "dev": "tsx watch src/index.ts",
     "test": "node --test --import tsx src/**/*.test.ts",
     "test:ci": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/report.lcov --test-reporter=junit --test-reporter-destination=junit.xml --import tsx src/**/*.test.ts"
   },
