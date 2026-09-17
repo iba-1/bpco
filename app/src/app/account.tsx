@@ -18,7 +18,7 @@ async function startLogin(provider: Provider) {
   }
 }
 
-export default function OnboardingScreen() {
+export default function AccountScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{i18n.t("onboarding.account.title")}</Text>
