@@ -74,8 +74,6 @@ jobs:
             app/build/Build/Products/Release-iphonesimulator/BPCOCompanion.app
 
       - name: Run Maestro flows
-        env:
-          PATH: ${{ runner.tool_cache }}/maestro/bin:$PATH
         run: |
           export PATH="$PATH:$HOME/.maestro/bin"
           mkdir -p docs/compliance/evidence/test-reports
