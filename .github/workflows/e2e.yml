@@ -97,6 +97,25 @@ jobs:
             --output docs/compliance/evidence/test-reports/e2e-report.xml \
             .maestro/flows
 
+      - name: Dump simulator hierarchy (diagnose failure)
+        if: always()
+        run: |
+          export PATH="$PATH:$HOME/.maestro/bin"
+          maestro hierarchy > /tmp/sim-hierarchy.json 2>&1 || true
+          python3 -c "
+import json
+try:
+    data=json.load(open('/tmp/sim-hierarchy.json'))
+    def walk(n,d=0):
+        a=n.get('attributes',{})
+        t=a.get('accessibilityText',''); rid=a.get('resource-id','')
+        if t or rid: print(' '*d + repr((t or rid)[:60]))
+        for c in n.get('children',[]): walk(c,d+2)
+    walk(data)
+except Exception as e:
+    print('hierarchy parse failed:', e)
+" | head -50
+
       - name: Persist E2E evidence
         run: |
           git config user.name "e2e-bot"

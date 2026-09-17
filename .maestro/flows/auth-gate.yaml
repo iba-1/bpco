@@ -5,11 +5,13 @@ appId: it.bpco.companion
 ---
 - launchApp:
     clearState: true
+    stopApp: true
 # Fresh install → no session → auth/welcome screen (RN first render can be
 # slow on a fresh CI simulator, so wait rather than assert immediately)
 - extendedWaitUntil:
     visible: "Tieni traccia della tua BPCO"
-    timeout: 30000
+    timeout: 60000
+- takeScreenshot: welcome
 - assertNotVisible: "Come stai oggi?"
 
 # The account entry exists behind the CTA
