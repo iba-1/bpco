@@ -76,4 +76,20 @@ export function registerAuthRoutes(
       return reply.code(401).send({ error: "invalid_token" });
     }
   });
+
+  // Test-only session seam, inert outside development/test. Lets E2E seed a
+  // valid pending OIDC state so the app's real deep-link exchange succeeds
+  // without a browser round-trip. Allowlisted by NODE_ENV so it can never
+  // appear in production or staging.
+  if (process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development") {
+    app.post("/auth/test/session", async (_req, reply) => {
+      const state = "e2e-state";
+      pending.set(state, {
+        codeVerifier: "e2e-verifier",
+        provider: "email",
+        createdAt: Date.now(),
+      });
+      return reply.send({ state, code: "e2e-code" });
+    });
+  }
 }

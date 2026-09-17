@@ -2,7 +2,8 @@ import { useState } from "react";
 import { View, Text, StyleSheet, Pressable, TextInput, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { i18n } from "../../i18n";
-import { useOnboardingStore } from "../../onboarding/context.ts";
+import { useOnboardingStore } from "../../onboarding/context.tsx";
+import { useAppState } from "../../app-state";
 import type { ReminderPreferences } from "../../onboarding/onboarding.ts";
 
 const DEFAULT_TIME = "20:00";
@@ -10,6 +11,7 @@ const DEFAULT_TIME = "20:00";
 export default function ReminderScreen() {
   const router = useRouter();
   const store = useOnboardingStore();
+  const { refreshOnboarding } = useAppState();
   const [checkInEnabled, setCheckInEnabled] = useState(true);
   const [checkInTime, setCheckInTime] = useState(DEFAULT_TIME);
   const [therapyEnabled, setTherapyEnabled] = useState(false);
@@ -22,6 +24,7 @@ export default function ReminderScreen() {
     };
     await store.saveReminderPreferences(preferences);
     await store.complete();
+    await refreshOnboarding();
     router.replace("/");
   }
 
@@ -32,6 +35,7 @@ export default function ReminderScreen() {
     };
     await store.saveReminderPreferences(preferences);
     await store.complete();
+    await refreshOnboarding();
     router.replace("/");
   }
 
@@ -61,6 +65,7 @@ export default function ReminderScreen() {
               value={checkInTime}
               onChangeText={setCheckInTime}
               keyboardType="numbers-and-punctuation"
+              testID="checkInTime"
             />
           </View>
         )}
@@ -88,6 +93,7 @@ export default function ReminderScreen() {
               value={therapyTime}
               onChangeText={setTherapyTime}
               keyboardType="numbers-and-punctuation"
+              testID="therapyTime"
             />
           </View>
         )}

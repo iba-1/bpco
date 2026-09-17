@@ -1,0 +1,92 @@
+name: E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  maestro-ios:
+    name: Maestro E2E (iOS simulator)
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      EXPO_PUBLIC_API_URL: http://127.0.0.1:3000
+      API_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # macos-15 default Xcode lacks iPhone 17 / iOS 26 — pin the installed one.
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.6.app || \
+            sudo xcode-select -s $(ls -d /Applications/Xcode_*.app | sort | tail -1)
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Maestro
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+
+      - name: Start backend + OIDC stub
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          VERNE_GATE_BASE_URL: http://127.0.0.1:9999
+          VERNE_GATE_CLIENT_ID: test-client
+          SESSION_SECRET: test-secret-32-chars-long-123456
+          PORT: 3000
+        run: |
+          npx tsx src/oidc-stub.ts > /tmp/oidc.log 2>&1 &
+          npx tsx src/index.ts > /tmp/api.log 2>&1 &
+          sleep 4
+          curl -sf http://127.0.0.1:3000/health || (cat /tmp/api.log; exit 1)
+
+      - name: Build iOS app (Release embeds JS bundle)
+        working-directory: app
+        run: |
+          npx expo prebuild --platform ios --no-install
+          npx pod-install
+          xcodebuild -workspace ios/BPCOCompanion.xcworkspace \
+            -scheme BPCOCompanion -configuration Release \
+            -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -derivedDataPath build build
+
+      - name: Boot simulator + install app
+        run: |
+          xcrun simctl boot "iPhone 17" || true
+          xcrun simctl install booted \
+            app/build/Build/Products/Release-iphonesimulator/BPCOCompanion.app
+
+      - name: Run Maestro flows
+        env:
+          PATH: ${{ runner.tool_cache }}/maestro/bin:$PATH
+        run: |
+          export PATH="$PATH:$HOME/.maestro/bin"
+          mkdir -p docs/compliance/evidence/test-reports
+          maestro test -e API_URL=${{ env.API_URL }} \
+            --format junit \
+            --output docs/compliance/evidence/test-reports/e2e-report.xml \
+            .maestro/flows
+
+      - name: Persist E2E evidence
+        run: |
+          git config user.name "e2e-bot"
+          git config user.email "e2e-bot@bpco.local"
+          git add docs/compliance/evidence/test-reports/e2e-report.xml
+          git diff --cached --quiet || git commit -m "evidence: E2E report (Maestro)"
+
+      - name: Upload E2E report
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: docs/compliance/evidence/test-reports/e2e-report.xml
+          if-no-files-found: warn

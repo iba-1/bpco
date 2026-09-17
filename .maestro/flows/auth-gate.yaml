@@ -1,0 +1,33 @@
+# Auth gate: unauthenticated users see the welcome screen, not the tabs.
+# Authenticated-but-not-onboarded users are redirected to onboarding.
+appId: it.bpco.companion
+
+---
+- launchApp:
+    clearState: true
+# Fresh install → no session → auth/welcome screen
+- assertVisible: "Tieni traccia della tua BPCO"
+- assertNotVisible: "Come stai oggi?"
+
+# The account entry exists behind the CTA
+- tapOn: "Inizia"
+- assertVisible: "Crea il tuo account"
+- assertVisible: "Continua con Apple"
+- assertVisible: "Continua con Google"
+
+# Authenticated + not onboarded → the index redirect sends the user to the
+# onboarding privacy step (gate, not the tabs).
+- runScript:
+    file: ../scripts/set-session.js
+    env:
+      API_URL: ${API_URL}
+- openLink: ${output.callback}
+- runFlow:
+    when:
+      visible: "Vuoi aprire l’elemento in “BPCO Companion”?"
+    commands:
+      - tapOn: "Apri"
+- extendedWaitUntil:
+    visible: "I tuoi dati"
+    timeout: 15000
+- assertNotVisible: "Come stai oggi?"

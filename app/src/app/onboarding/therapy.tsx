@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, Text, StyleSheet, Pressable, TextInput, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { i18n } from "../../i18n";
-import { useOnboardingStore } from "../../onboarding/context.ts";
+import { useOnboardingStore } from "../../onboarding/context.tsx";
 import type { TherapySlot } from "../../onboarding/onboarding.ts";
 
 const slots: TherapySlot[] = ["morning", "afternoon", "evening"];
@@ -34,7 +34,7 @@ export default function TherapyScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <Text style={styles.title}>{i18n.t("onboarding.therapy.title")}</Text>
       <Text style={styles.subtitle}>{i18n.t("onboarding.therapy.subtitle")}</Text>
 
@@ -44,6 +44,7 @@ export default function TherapyScreen() {
         value={drug}
         onChangeText={setDrug}
         placeholder={i18n.t("onboarding.therapy.drug.placeholder")}
+        testID="drug"
       />
 
       <Text style={styles.fieldLabel}>{i18n.t("onboarding.therapy.dose.label")}</Text>
@@ -52,6 +53,7 @@ export default function TherapyScreen() {
         value={dose}
         onChangeText={setDose}
         placeholder={i18n.t("onboarding.therapy.dose.placeholder")}
+        testID="dose"
       />
 
       <Text style={styles.fieldLabel}>{i18n.t("onboarding.therapy.slot.title")}</Text>

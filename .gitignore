@@ -19,6 +19,11 @@ dist/
 app/.expo/
 app/ios/
 app/android/
+app/build/
+
+# Maestro artifacts
+.maestro/tests/
+.maestro/logs/
 
 # Test artifacts
 coverage/

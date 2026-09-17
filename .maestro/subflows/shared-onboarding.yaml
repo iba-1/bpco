@@ -1,0 +1,59 @@
+# Shared: drive the app to authenticated + onboarding-complete (Home).
+# Used by flows that need the post-onboarding state (e.g. tabs).
+appId: it.bpco.companion
+
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Tieni traccia della tua BPCO"
+- runScript:
+    file: ../scripts/set-session.js
+    env:
+      API_URL: ${API_URL}
+- openLink: ${output.callback}
+- runFlow:
+    when:
+      visible: "Vuoi aprire l’elemento in “BPCO Companion”?"
+    commands:
+      - tapOn: "Apri"
+- extendedWaitUntil:
+    visible: "I tuoi dati"
+    timeout: 15000
+- tapOn: "Accetta e continua"
+- extendedWaitUntil:
+    visible: "Il tuo profilo"
+    timeout: 10000
+- tapOn:
+    text: ".*Anno di nascita.*"
+- tapOn:
+    id: "birthYear"
+- inputText: "1955"
+- assertVisible: "1955"
+- tapOn: "Sesso"
+- tapOn: "Confermo di avere una diagnosi di BPCO."
+- tapOn: "Non fumatore"
+- tapOn: "Continua"
+- extendedWaitUntil:
+    visible: "La tua terapia"
+    timeout: 10000
+- tapOn:
+    text: ".*Farmaco.*"
+- tapOn:
+    id: "drug"
+- inputText: "Trelegy Ellipta"
+- tapOn:
+    text: ".*Quando lo prendi.*"
+- tapOn:
+    id: "dose"
+- inputText: "1 inalazione"
+- tapOn:
+    text: ".*Quando lo prendi.*"
+- tapOn: "Mattina"
+- tapOn: "Continua"
+- extendedWaitUntil:
+    visible: "Promemoria"
+    timeout: 10000
+- tapOn: "Completa"
+- extendedWaitUntil:
+    visible: "Come stai oggi?"
+    timeout: 10000

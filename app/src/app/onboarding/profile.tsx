@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, Text, StyleSheet, Pressable, TextInput, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { i18n } from "../../i18n";
-import { useOnboardingStore } from "../../onboarding/context.ts";
+import { useOnboardingStore } from "../../onboarding/context.tsx";
 import type { Profile, Sex, SmokerStatus } from "../../onboarding/onboarding.ts";
 
 const sexOptions: { value: Sex | "undisclosed"; label: string }[] = [
@@ -51,7 +51,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <Text style={styles.title}>{i18n.t("onboarding.profile.title")}</Text>
       <Text style={styles.subtitle}>{i18n.t("onboarding.profile.subtitle")}</Text>
 
@@ -61,8 +61,9 @@ export default function ProfileScreen() {
         value={birthYearText}
         onChangeText={setBirthYearText}
         placeholder={i18n.t("onboarding.profile.birthyear.placeholder")}
-        keyboardType="number-pad"
+        keyboardType="numeric"
         maxLength={4}
+        testID="birthYear"
       />
       {birthYearText.length > 0 && !yearValid && (
         <Text style={styles.error}>{i18n.t("onboarding.profile.birthyear.error")}</Text>
