@@ -82,9 +82,11 @@ jobs:
 
       - name: Boot simulator + install app
         run: |
-          xcrun simctl boot "${{ env.SIM_UDID }}" || true
+          xcrun simctl boot "${{ env.SIM_UDID }}" 2>/dev/null || true
+          xcrun simctl bootstatus "${{ env.SIM_UDID }}" -b
           xcrun simctl install booted \
             app/build/Build/Products/Release-iphonesimulator/BPCOCompanion.app
+          xcrun simctl launch booted it.bpco.companion
 
       - name: Run Maestro flows
         run: |
