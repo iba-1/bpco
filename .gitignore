@@ -21,4 +21,7 @@ app/ios/
 app/android/
 
 # Test artifacts
-coverage/.worktrees/
+coverage/
+
+# Implementer worktrees
+.worktrees/
