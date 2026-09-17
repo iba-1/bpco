@@ -20,7 +20,11 @@ export default function TherapyScreen() {
     );
   }
 
+  const canContinue =
+    drug.trim().length > 0 && dose.trim().length > 0 && selectedSlots.length > 0;
+
   async function handleContinue() {
+    if (!canContinue) return;
     await store.saveTherapy({
       drug: drug.trim(),
       dose: dose.trim(),
@@ -65,7 +69,13 @@ export default function TherapyScreen() {
         ))}
       </View>
 
-      <Pressable style={styles.cta} onPress={() => void handleContinue()}>
+      <Text style={styles.hint}>{i18n.t("onboarding.therapy.hint")}</Text>
+
+      <Pressable
+        style={[styles.cta, !canContinue && styles.ctaDisabled]}
+        disabled={!canContinue}
+        onPress={() => void handleContinue()}
+      >
         <Text style={styles.ctaText}>{i18n.t("onboarding.therapy.cta.continue")}</Text>
       </Pressable>
     </ScrollView>
@@ -78,6 +88,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: "700", marginBottom: 8 },
   subtitle: { fontSize: 15, color: "#555", marginBottom: 24 },
   fieldLabel: { fontSize: 15, fontWeight: "600", marginTop: 20, marginBottom: 6 },
+  hint: { fontSize: 13, color: "#777", marginTop: 12 },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -103,5 +114,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 32,
   },
+  ctaDisabled: { backgroundColor: "#9fc3d1" },
   ctaText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });

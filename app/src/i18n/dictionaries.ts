@@ -65,6 +65,7 @@ export const it = {
   "onboarding.therapy.slot.morning": "Mattina",
   "onboarding.therapy.slot.afternoon": "Pomeriggio",
   "onboarding.therapy.slot.evening": "Sera",
+  "onboarding.therapy.hint": "Compila farmaco, dosaggio e almeno un momento.",
   "onboarding.therapy.cta.continue": "Continua",
 
   "onboarding.reminder.title": "Promemoria",
@@ -172,6 +173,7 @@ export const en = {
   "onboarding.therapy.slot.morning": "Morning",
   "onboarding.therapy.slot.afternoon": "Afternoon",
   "onboarding.therapy.slot.evening": "Evening",
+  "onboarding.therapy.hint": "Add drug, dose and at least one time slot.",
   "onboarding.therapy.cta.continue": "Continue",
 
   "onboarding.reminder.title": "Reminders",

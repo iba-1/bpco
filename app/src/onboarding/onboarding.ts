@@ -4,7 +4,7 @@ export interface OnboardingStorage {
   removeItem(key: string): Promise<void>;
 }
 
-export type Sex = "female" | "male" | "prefer-not-to-say";
+export type Sex = "female" | "male";
 
 export type SmokerStatus = "smoker" | "ex-smoker" | "never-smoker";
 
@@ -58,7 +58,11 @@ async function readJson<T>(storage: OnboardingStorage, key: string): Promise<T |
   const raw = await storage.getItem(key);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as T;
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+    return parsed as T;
   } catch {
     return null;
   }
