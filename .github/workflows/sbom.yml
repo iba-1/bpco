@@ -2,7 +2,6 @@ name: SBOM
 
 on:
   push:
-    branches: [main]
   pull_request:
 
 permissions:
@@ -10,11 +9,8 @@ permissions:
 
 jobs:
   sbom:
-    name: Generate SBOM per artifact
+    name: Generate SBOM
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        workspace: [backend, app]
     steps:
       - uses: actions/checkout@v4
 
@@ -26,21 +22,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate SBOM (${{ matrix.workspace }})
-        uses: anchore/sbom-action@v0
-        with:
-          path: ./${{ matrix.workspace }}
-          format: cyclonedx-json
-          output-file: sbom-${{ matrix.workspace }}.cdx.json
-
-      - name: Upload SBOM (${{ matrix.workspace }})
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom-${{ matrix.workspace }}
-          path: sbom-${{ matrix.workspace }}.cdx.json
-          retention-days: 90
+      - name: Generate SBOM from lockfile
+        run: |
+          npx @cyclonedx/cyclonedx-npm \
+            --package-lock-only \
+            --validate \
+            --output-format JSON \
+            --output-file sbom.cdx.json
 
       - name: Verify SBOM is non-empty
         run: |
-          jq -e '.components | length > 0' sbom-${{ matrix.workspace }}.cdx.json >/dev/null \
+          jq -e '.components | length > 0' sbom.cdx.json >/dev/null \
             || { echo "SBOM has no components"; exit 1; }
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.cdx.json
+          retention-days: 90

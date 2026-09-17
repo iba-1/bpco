@@ -37,19 +37,13 @@ jobs:
           tar -czf dist/bpco-source-${{ github.ref_name }}.tar.gz \
             backend/src app/src infra docs PRD.md CONTEXT.md
 
-      - name: Generate SBOM for release (backend)
-        uses: anchore/sbom-action@v0
-        with:
-          path: ./backend
-          format: cyclonedx-json
-          output-file: dist/sbom-backend-${{ github.ref_name }}.cdx.json
-
-      - name: Generate SBOM for release (app)
-        uses: anchore/sbom-action@v0
-        with:
-          path: ./app
-          format: cyclonedx-json
-          output-file: dist/sbom-app-${{ github.ref_name }}.cdx.json
+      - name: Generate SBOM from lockfile
+        run: |
+          npx @cyclonedx/cyclonedx-npm \
+            --package-lock-only \
+            --validate \
+            --output-format JSON \
+            --output-file dist/sbom-${{ github.ref_name }}.cdx.json
 
       - name: Install cosign
         uses: sigstore/cosign-installer@v3
