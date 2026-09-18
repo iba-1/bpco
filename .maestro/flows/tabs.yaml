@@ -1,0 +1,19 @@
+# Tab navigation + empty states: requires authenticated + onboarding done.
+appId: it.bpco.companion
+
+---
+- runFlow:
+    file: ../subflows/shared-onboarding.yaml
+
+- tapOn:
+    id: "tab-storico"
+- assertVisible: "Nessun dato da mostrare"
+- tapOn:
+    id: "tab-report"
+- assertVisible: "Nessun report ancora"
+- tapOn:
+    id: "tab-profilo"
+- assertVisible: "Profilo personale"
+- tapOn:
+    id: "tab-home"
+- assertVisible: "Come stai oggi?"

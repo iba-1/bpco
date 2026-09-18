@@ -1,0 +1,16 @@
+# Accept the iOS "Open in <app>?" deep-link confirmation prompt.
+# iOS shows this when a custom scheme is first opened; locale differs
+# (it: "Vuoi aprire l’elemento in", en: "Open in"). Match by the app name.
+appId: it.bpco.companion
+
+---
+- runFlow:
+    when:
+      visible: ".*Open in.*BPCO Companion.*"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible: ".*Vuoi aprire.*BPCO Companion.*"
+    commands:
+      - tapOn: "Apri"

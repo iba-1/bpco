@@ -101,3 +101,38 @@ test("GET /auth/me rejects an invalid token", async () => {
   assert.equal(res.statusCode, 401);
   await app.close();
 });
+
+test("test seam seeds a valid state the callback accepts", async () => {
+  const original = process.env.NODE_ENV;
+  process.env.NODE_ENV = "test";
+  try {
+    const app = buildApp();
+    const seed = await app.inject({ method: "POST", url: "/auth/test/session" });
+    assert.equal(seed.statusCode, 200);
+    const { state, code } = seed.json();
+    assert.equal(state, "e2e-state");
+    const cb = await app.inject({
+      method: "GET",
+      url: `/auth/callback?code=${code}&state=${state}`,
+    });
+    assert.equal(cb.statusCode, 200);
+    const { session } = cb.json();
+    assert.ok(session.split(".").length === 3);
+    await app.close();
+  } finally {
+    process.env.NODE_ENV = original;
+  }
+});
+
+test("test seam is absent in production", async () => {
+  const original = process.env.NODE_ENV;
+  process.env.NODE_ENV = "production";
+  try {
+    const app = buildApp();
+    const res = await app.inject({ method: "POST", url: "/auth/test/session" });
+    assert.equal(res.statusCode, 404);
+    await app.close();
+  } finally {
+    process.env.NODE_ENV = original;
+  }
+});

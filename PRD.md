@@ -64,6 +64,7 @@ Tra una visita pneumologica e l'altra passano settimane o mesi. Il paziente sper
 | Questionari | **CAT mensile + mMRC settimanale** (ipotesi Phase 0) | — |
 | Account | email+password, Sign in with Apple, Google | — |
 | Ritenzione dati | Hard delete dati sanitari entro 30 giorni da cancellazione account; audit log conservati | — |
+| E2E testing | **Maestro** su iOS simulator/Android emulator, flussi per ogni feature; integrazione backend su HTTP reale | §20 |
 
 ---
 
@@ -275,3 +276,30 @@ Se necessario ridurre ulteriormente la prima release (dal doc sorgente §46):
 ## 19. Note sul tono
 
 Evitare gamification aggressiva. Il messaggio dopo il check-in è neutro ("Registrato ✓"). Il linguaggio dei trend è descrittivo, mai allarmistico né diagnostico (§8).
+---
+
+## 20. E2E testing (Maestro)
+
+Ogni feature e ogni layer di integrazione viene coperto da test end-to-end, oltre agli unit test già presenti.
+
+### App (UI E2E) — Maestro
+
+- **Strumento**: Maestro, flussi YAML in `.maestro/flows/`, eseguiti su iOS simulator (Xcode 26+) e Android emulator.
+- **Copertura**: un flusso per ogni feature: onboarding (privacy → profilo → terapia → promemoria), gate di autenticazione, 4 tab, e a seguire check-in, timeline, report, reminder.
+- **Build**: app nativa via `expo run:ios` / `expo run:android` (prebuild + dev build), non Expo Go.
+- **Eseguibili localmente**: `maestro test .maestro/flows/<feature>.yaml`.
+- **Regola**: nessuna feature si considera chiusa senza il suo flusso Maestro (acceptance criterion di ogni ticket feature).
+
+### Integrazione backend
+
+- Test di integrazione HTTP reale (server Fastify avviato, chiamate reali) oltre agli unit test con fetch mockato.
+- Dove serve un mock di Verne Gate: un OIDC server fittizio locale (stesso contratto `/auth/login` → `/auth/callback` → session).
+
+### CI
+
+- Workflow E2E dedicato: build nativa → avvio simulator → `maestro test` su ogni push alla branch PR.
+- Report Maestro (JUnit) come artefatto CI, aggregato con unit/integration in `docs/compliance/evidence/`.
+
+### Compliance
+
+- Gli E2E producono evidenza di verifica di sistema per il Technical File (IEC 62304 system testing, `05-verification.md`).

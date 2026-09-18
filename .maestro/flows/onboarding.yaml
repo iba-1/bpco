@@ -1,0 +1,81 @@
+# Onboarding: post-login journey through privacy → profile → therapy → reminders.
+# Auth state is set via the backend test seam (NODE_ENV=test/development):
+# the script mints a pending OIDC state and the app's callback route exchanges
+# it over the real backend, then the onboarding gate drives the steps.
+appId: it.bpco.companion
+
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Tieni traccia della tua BPCO"
+    timeout: 30000
+
+# Mint a pending OIDC state via the backend test seam and deliver the deep
+# link to the app; the app's exchange completes and saves the session.
+- runScript:
+    file: ../scripts/set-session.js
+    env:
+      API_URL: ${API_URL}
+- openLink: ${output.callback}
+- runFlow:
+    file: ../subflows/accept-deeplink-prompt.yaml
+
+# Authenticated + onboarding not completed → privacy step
+- extendedWaitUntil:
+    visible: "I tuoi dati"
+    timeout: 15000
+- assertVisible: "Raccogliamo solo i dati necessari a funzionare. Non sostituiamo il medico."
+- tapOn: "Leggi il testo completo"
+- scrollUntilVisible:
+    element:
+      text: ".*Informativa sul trattamento dei dati personali.*"
+    direction: DOWN
+- scrollUntilVisible:
+    element:
+      text: "Accetta e continua"
+    direction: DOWN
+- tapOn: "Accetta e continua"
+
+# Profile step
+- assertVisible: "Il tuo profilo"
+- tapOn:
+    text: ".*Anno di nascita.*"
+- tapOn:
+    id: "birthYear"
+- inputText: "1955"
+- assertVisible: "1955"
+- tapOn: "Sesso"
+- tapOn: "Confermo di avere una diagnosi di BPCO."
+- tapOn: "Non fumatore"
+- tapOn: "Continua"
+
+# Therapy step
+- assertVisible: "La tua terapia"
+- tapOn:
+    text: ".*Farmaco.*"
+- tapOn:
+    id: "drug"
+- inputText: "Trelegy Ellipta"
+- assertVisible: "Trelegy Ellipta"
+- tapOn:
+    text: ".*Quando lo prendi.*"
+- tapOn:
+    id: "dose"
+- inputText: "1 inalazione"
+- assertVisible: "1 inalazione"
+- tapOn:
+    text: ".*Quando lo prendi.*"
+- tapOn: "Mattina"
+- tapOn: "Continua"
+
+# Reminder step
+- assertVisible: "Promemoria"
+- assertVisible: "Vuoi che ti ricordi di registrare come stai?"
+- assertVisible: "Vuoi ricevere anche i promemoria della terapia?"
+- tapOn: "Completa"
+
+# Onboarding complete → tabs (Home)
+- extendedWaitUntil:
+    visible: "Come stai oggi?"
+    timeout: 10000

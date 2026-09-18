@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "BPCO Companion mobile app — Expo / React Native",
+  "main": "expo-router/entry",
   "type": "module",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -13,6 +14,7 @@
     "@eslint/js": "^9.17.0",
     "@types/node": "^22.10.0",
     "eslint": "^9.17.0",
+    "patch-package": "^8.0.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.0"
@@ -21,6 +23,7 @@
     "expo": "^57.0.23",
     "expo-constants": "~57.0.18",
     "expo-linking": "~57.0.10",
+    "expo-modules-jsi": "^57.1.0",
     "expo-router": "~57.0.21",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",

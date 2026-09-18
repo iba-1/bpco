@@ -5,9 +5,13 @@
     "version": "0.1.0",
     "scheme": "bpco",
     "main": "expo-router/entry",
-    "plugins": ["expo-router", "expo-status-bar"],
+    "plugins": [
+      "expo-router",
+      "expo-status-bar"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "it.bpco.companion"
     },
     "android": {
       "package": "it.bpco.companion"

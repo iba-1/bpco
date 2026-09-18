@@ -1,0 +1,5 @@
+appId: it.bpco.companion
+name: BPCO Companion E2E
+# Maestro config for the BPCO Companion app.
+# Flows live in .maestro/flows/. Run with: maestro test .maestro/flows
+# Requires a native build (expo run:ios / run:android), not Expo Go (PRD §20).
